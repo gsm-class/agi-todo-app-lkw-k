@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "start": "npx serve out",
+    "lint": "eslint .",
     "deploy": "npx vercel --prod",
     "test": "vitest",
     "test:ui": "vitest --ui",

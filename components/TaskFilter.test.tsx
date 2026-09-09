@@ -10,7 +10,7 @@ describe('TaskFilter', () => {
     mockOnToggleShowCompleted.mockClear()
   })
 
-  it('チェックボックスとラベルが表示される', () => {
+  it('체크박스와 라벨이 표시된다', () => {
     render(
       <TaskFilter
         showCompleted={true}
@@ -19,13 +19,13 @@ describe('TaskFilter', () => {
     )
 
     const checkbox = screen.getByRole('checkbox')
-    const label = screen.getByText('完了済みのタスクを表示')
+    const label = screen.getByText('완료된 작업 표시')
 
     expect(checkbox).toBeInTheDocument()
     expect(label).toBeInTheDocument()
   })
 
-  it('showCompletedがtrueの場合、チェックボックスがチェックされている', () => {
+  it('showCompleted가 true면 체크박스가 체크되어 있다', () => {
     render(
       <TaskFilter
         showCompleted={true}
@@ -37,7 +37,7 @@ describe('TaskFilter', () => {
     expect(checkbox).toBeChecked()
   })
 
-  it('showCompletedがfalseの場合、チェックボックスがチェックされていない', () => {
+  it('showCompleted가 false면 체크박스가 체크되어 있지 않다', () => {
     render(
       <TaskFilter
         showCompleted={false}
@@ -49,7 +49,7 @@ describe('TaskFilter', () => {
     expect(checkbox).not.toBeChecked()
   })
 
-  it('チェックボックスをクリックするとコールバックが呼ばれる', async () => {
+  it('체크박스를 클릭하면 콜백이 호출된다', async () => {
     const user = userEvent.setup()
     render(
       <TaskFilter
@@ -65,7 +65,7 @@ describe('TaskFilter', () => {
     expect(mockOnToggleShowCompleted).toHaveBeenCalledTimes(1)
   })
 
-  it('チェック済みのチェックボックスをクリックするとfalseで呼ばれる', async () => {
+  it('체크된 체크박스를 클릭하면 false로 호출된다', async () => {
     const user = userEvent.setup()
     render(
       <TaskFilter
@@ -81,7 +81,7 @@ describe('TaskFilter', () => {
     expect(mockOnToggleShowCompleted).toHaveBeenCalledTimes(1)
   })
 
-  it('ラベルをクリックしてもチェックボックスが切り替わる', async () => {
+  it('라벨을 클릭해도 체크박스가 전환된다', async () => {
     const user = userEvent.setup()
     render(
       <TaskFilter
@@ -90,13 +90,13 @@ describe('TaskFilter', () => {
       />
     )
 
-    const label = screen.getByText('完了済みのタスクを表示')
+    const label = screen.getByText('완료된 작업 표시')
     await user.click(label)
 
     expect(mockOnToggleShowCompleted).toHaveBeenCalledWith(true)
   })
 
-  it('複数回クリックしても正しく動作する', async () => {
+  it('여러 번 클릭해도 올바르게 동작한다', async () => {
     const user = userEvent.setup()
     const { rerender } = render(
       <TaskFilter
@@ -107,11 +107,9 @@ describe('TaskFilter', () => {
 
     const checkbox = screen.getByRole('checkbox')
     
-    // 1回目のクリック
     await user.click(checkbox)
     expect(mockOnToggleShowCompleted).toHaveBeenLastCalledWith(true)
 
-    // propsを更新して再レンダリング
     rerender(
       <TaskFilter
         showCompleted={true}
@@ -119,7 +117,6 @@ describe('TaskFilter', () => {
       />
     )
 
-    // 2回目のクリック
     await user.click(checkbox)
     expect(mockOnToggleShowCompleted).toHaveBeenLastCalledWith(false)
 

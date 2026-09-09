@@ -16,15 +16,13 @@ describe('useTodos', () => {
     vi.mocked(storage.loadTasks).mockReturnValue([])
   })
 
-  it('初期状態でisLoadingがtrueになるが、useEffectの実行後はfalseになる', async () => {
+  it('useEffect 실행 후 isLoading이 false가 된다', async () => {
     const { result } = renderHook(() => useTodos())
     
-    // 初期状態はtrueだが、テスト環境ではuseEffectが即座に実行される
-    // そのため、結果はfalseになっている
     expect(result.current.isLoading).toBe(false)
   })
 
-  it('クライアントサイドでデータをロードする', async () => {
+  it('클라이언트에서 데이터를 불러온다', async () => {
     const mockTasks = [
       {
         id: '1',
@@ -47,7 +45,7 @@ describe('useTodos', () => {
     expect(result.current.tasks).toEqual(mockTasks)
   })
 
-  it('タスクを追加できる', async () => {
+  it('작업을 추가할 수 있다', async () => {
     const { result } = renderHook(() => useTodos())
 
     await act(async () => {
@@ -67,7 +65,7 @@ describe('useTodos', () => {
     expect(storage.saveTasks).toHaveBeenCalledWith(result.current.tasks)
   })
 
-  it('タスクを削除できる', async () => {
+  it('작업을 삭제할 수 있다', async () => {
     const mockTasks = [
       {
         id: '1',
@@ -93,7 +91,7 @@ describe('useTodos', () => {
     expect(storage.saveTasks).toHaveBeenCalledWith([])
   })
 
-  it('タスクの完了状態を切り替えられる', async () => {
+  it('작업의 완료 상태를 전환할 수 있다', async () => {
     const mockTasks = [
       {
         id: '1',
@@ -118,7 +116,7 @@ describe('useTodos', () => {
     expect(result.current.tasks[0].completed).toBe(true)
   })
 
-  it('タスクを編集できる', async () => {
+  it('작업을 편집할 수 있다', async () => {
     const mockTasks = [
       {
         id: '1',
@@ -146,7 +144,7 @@ describe('useTodos', () => {
     })
   })
 
-  it('完了済みタスクをフィルタリングできる', async () => {
+  it('완료된 작업을 필터링할 수 있다', async () => {
     const mockTasks = [
       {
         id: '1',
@@ -171,10 +169,8 @@ describe('useTodos', () => {
       await new Promise((resolve) => setTimeout(resolve, 0))
     })
 
-    // 初期状態では全タスクを表示
     expect(result.current.tasks).toHaveLength(2)
 
-    // 完了済みを非表示に
     act(() => {
       result.current.setShowCompleted(false)
     })

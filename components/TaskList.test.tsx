@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react'
 import TaskList from './TaskList'
 import { Task } from '@/types/task'
 
-// TaskItemコンポーネントをモック
 vi.mock('./TaskItem', () => ({
   default: vi.fn(({ task, onToggleComplete, onEdit, onDelete }) => (
     <div data-testid={`task-item-${task.id}`}>
@@ -23,14 +22,14 @@ describe('TaskList', () => {
   const mockTasks: Task[] = [
     {
       id: '1',
-      title: 'タスク1',
+      title: '작업 1',
       completed: false,
       createdAt: '2024-01-01T00:00:00.000Z',
       updatedAt: '2024-01-01T00:00:00.000Z',
     },
     {
       id: '2',
-      title: 'タスク2',
+      title: '작업 2',
       completed: true,
       dueDate: '2024-12-31',
       createdAt: '2024-01-01T00:00:00.000Z',
@@ -42,7 +41,7 @@ describe('TaskList', () => {
     vi.clearAllMocks()
   })
 
-  it('タスクが空の場合、メッセージが表示される', () => {
+  it('작업이 없으면 안내 메시지가 표시된다', () => {
     render(
       <TaskList
         tasks={[]}
@@ -52,10 +51,10 @@ describe('TaskList', () => {
       />
     )
 
-    expect(screen.getByText('タスクがありません。新しいタスクを追加してください。')).toBeInTheDocument()
+    expect(screen.getByText('작업이 없습니다. 새 작업을 추가해주세요.')).toBeInTheDocument()
   })
 
-  it('タスクが存在する場合、すべてのタスクが表示される', () => {
+  it('작업이 있으면 모든 작업이 표시된다', () => {
     render(
       <TaskList
         tasks={mockTasks}
@@ -67,11 +66,11 @@ describe('TaskList', () => {
 
     expect(screen.getByTestId('task-item-1')).toBeInTheDocument()
     expect(screen.getByTestId('task-item-2')).toBeInTheDocument()
-    expect(screen.getByText('タスク1')).toBeInTheDocument()
-    expect(screen.getByText('タスク2')).toBeInTheDocument()
+    expect(screen.getByText('작업 1')).toBeInTheDocument()
+    expect(screen.getByText('작업 2')).toBeInTheDocument()
   })
 
-  it('TaskItemに正しいpropsが渡される', async () => {
+  it('TaskItem에 올바른 props가 전달된다', async () => {
     const TaskItemModule = await import('./TaskItem')
     const TaskItem = vi.mocked(TaskItemModule.default)
     
@@ -84,7 +83,6 @@ describe('TaskList', () => {
       />
     )
 
-    // 最初のタスクのpropsを確認
     expect(TaskItem).toHaveBeenCalledWith(
       {
         task: mockTasks[0],
@@ -95,7 +93,6 @@ describe('TaskList', () => {
       undefined
     )
 
-    // 2番目のタスクのpropsを確認
     expect(TaskItem).toHaveBeenCalledWith(
       {
         task: mockTasks[1],
@@ -107,7 +104,7 @@ describe('TaskList', () => {
     )
   })
 
-  it('タスクの数が変わっても正しく表示される', () => {
+  it('작업 개수가 바뀌어도 올바르게 표시된다', () => {
     const { rerender } = render(
       <TaskList
         tasks={mockTasks}
@@ -119,12 +116,11 @@ describe('TaskList', () => {
 
     expect(screen.getAllByTestId(/task-item-/)).toHaveLength(2)
 
-    // タスクを追加
     const newTasks = [
       ...mockTasks,
       {
         id: '3',
-        title: 'タスク3',
+        title: '작업 3',
         completed: false,
         createdAt: '2024-01-01T00:00:00.000Z',
         updatedAt: '2024-01-01T00:00:00.000Z',

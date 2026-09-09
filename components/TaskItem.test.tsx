@@ -4,6 +4,12 @@ import userEvent from '@testing-library/user-event'
 import TaskItem from './TaskItem'
 import { Task } from '@/types/task'
 
+const toLocalDateString = (date: Date) => {
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${date.getFullYear()}-${month}-${day}`
+}
+
 describe('TaskItem', () => {
   const mockOnToggleComplete = vi.fn()
   const mockOnEdit = vi.fn()
@@ -11,7 +17,7 @@ describe('TaskItem', () => {
 
   const mockTask: Task = {
     id: '1',
-    title: 'テストタスク',
+    title: '테스트 작업',
     completed: false,
     dueDate: '2024-12-31',
     createdAt: '2024-01-01T00:00:00.000Z',
@@ -20,7 +26,6 @@ describe('TaskItem', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    // window.confirm のモック
     vi.spyOn(window, 'confirm').mockReturnValue(true)
   })
 
@@ -28,7 +33,7 @@ describe('TaskItem', () => {
     vi.restoreAllMocks()
   })
 
-  it('タスクの情報が正しく表示される', () => {
+  it('작업 정보가 올바르게 표시된다', () => {
     render(
       <TaskItem
         task={mockTask}
@@ -38,12 +43,12 @@ describe('TaskItem', () => {
       />
     )
 
-    expect(screen.getByText('テストタスク')).toBeInTheDocument()
-    expect(screen.getByText(/期限: 2024\/12\/31/)).toBeInTheDocument()
+    expect(screen.getByText('테스트 작업')).toBeInTheDocument()
+    expect(screen.getByText('기한: 2024. 12. 31.')).toBeInTheDocument()
     expect(screen.getByRole('checkbox')).not.toBeChecked()
   })
 
-  it('完了済みタスクは取り消し線とグレーアウトで表示される', () => {
+  it('완료된 작업은 취소선과 그레이아웃으로 표시된다', () => {
     const completedTask = { ...mockTask, completed: true }
     render(
       <TaskItem
@@ -54,12 +59,11 @@ describe('TaskItem', () => {
       />
     )
 
-    const taskTitle = screen.getByText('テストタスク')
-    expect(taskTitle).toHaveClass('line-through', 'opacity-50')
+    expect(screen.getByText('테스트 작업')).toHaveClass('line-through', 'opacity-50')
     expect(screen.getByRole('checkbox')).toBeChecked()
   })
 
-  it('期限切れのタスクは赤色で表示される', () => {
+  it('기한이 지난 작업은 빨간색으로 표시된다', () => {
     const overdueTask = { ...mockTask, dueDate: '2020-01-01' }
     render(
       <TaskItem
@@ -70,13 +74,11 @@ describe('TaskItem', () => {
       />
     )
 
-    const dueDateText = screen.getByText(/期限:/)
-    expect(dueDateText).toHaveClass('text-red-500')
+    expect(screen.getByText(/기한:/)).toHaveClass('text-red-500')
   })
 
-  it('今日が期限のタスクはオレンジ色で表示される', () => {
-    const today = new Date().toISOString().split('T')[0]
-    const todayTask = { ...mockTask, dueDate: today }
+  it('오늘이 기한인 작업은 주황색으로 표시된다', () => {
+    const todayTask = { ...mockTask, dueDate: toLocalDateString(new Date()) }
     render(
       <TaskItem
         task={todayTask}
@@ -86,11 +88,26 @@ describe('TaskItem', () => {
       />
     )
 
-    const dueDateText = screen.getByText(/期限:/)
-    expect(dueDateText).toHaveClass('text-orange-500')
+    expect(screen.getByText(/기한:/)).toHaveClass('text-orange-500')
   })
 
-  it('期限がないタスクは期限が表示されない', () => {
+  it('기한이 남은 작업은 기본 색상으로 표시된다', () => {
+    const future = new Date()
+    future.setDate(future.getDate() + 7)
+    const futureTask = { ...mockTask, dueDate: toLocalDateString(future) }
+    render(
+      <TaskItem
+        task={futureTask}
+        onToggleComplete={mockOnToggleComplete}
+        onEdit={mockOnEdit}
+        onDelete={mockOnDelete}
+      />
+    )
+
+    expect(screen.getByText(/기한:/)).toHaveClass('text-gray-500')
+  })
+
+  it('기한이 없는 작업은 기한이 표시되지 않는다', () => {
     const noDueDateTask = { ...mockTask, dueDate: undefined }
     render(
       <TaskItem
@@ -101,10 +118,10 @@ describe('TaskItem', () => {
       />
     )
 
-    expect(screen.queryByText(/期限:/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/기한:/)).not.toBeInTheDocument()
   })
 
-  it('チェックボックスをクリックすると完了状態が切り替わる', async () => {
+  it('체크박스를 클릭하면 완료 상태가 전환된다', async () => {
     const user = userEvent.setup()
     render(
       <TaskItem
@@ -115,13 +132,12 @@ describe('TaskItem', () => {
       />
     )
 
-    const checkbox = screen.getByRole('checkbox')
-    await user.click(checkbox)
+    await user.click(screen.getByRole('checkbox'))
 
     expect(mockOnToggleComplete).toHaveBeenCalledWith('1')
   })
 
-  it('編集ボタンをクリックすると編集モードになる', async () => {
+  it('편집 버튼을 클릭하면 편집 모드가 된다', async () => {
     const user = userEvent.setup()
     render(
       <TaskItem
@@ -132,21 +148,18 @@ describe('TaskItem', () => {
       />
     )
 
-    const editButton = screen.getByRole('button', { name: '編集' })
-    await user.click(editButton)
+    await user.click(screen.getByRole('button', { name: '편집' }))
 
-    // 編集モードのUI要素が表示される
-    expect(screen.getByDisplayValue('テストタスク')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('테스트 작업')).toBeInTheDocument()
     expect(screen.getByDisplayValue('2024-12-31')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '保存' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'キャンセル' })).toBeInTheDocument()
-    
-    // 元のボタンは非表示
-    expect(screen.queryByRole('button', { name: '編集' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: '削除' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '저장' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '취소' })).toBeInTheDocument()
+
+    expect(screen.queryByRole('button', { name: '편집' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '삭제' })).not.toBeInTheDocument()
   })
 
-  it('編集モードで保存すると更新される', async () => {
+  it('편집 모드에서 저장하면 갱신된다', async () => {
     const user = userEvent.setup()
     render(
       <TaskItem
@@ -157,25 +170,22 @@ describe('TaskItem', () => {
       />
     )
 
-    // 編集モードに入る
-    await user.click(screen.getByRole('button', { name: '編集' }))
+    await user.click(screen.getByRole('button', { name: '편집' }))
 
-    // タイトルと期限を変更
-    const titleInput = screen.getByDisplayValue('テストタスク')
+    const titleInput = screen.getByDisplayValue('테스트 작업')
     const dueDateInput = screen.getByDisplayValue('2024-12-31')
 
     await user.clear(titleInput)
-    await user.type(titleInput, '更新されたタスク')
+    await user.type(titleInput, '수정된 작업')
     await user.clear(dueDateInput)
     await user.type(dueDateInput, '2025-01-01')
 
-    // 保存
-    await user.click(screen.getByRole('button', { name: '保存' }))
+    await user.click(screen.getByRole('button', { name: '저장' }))
 
-    expect(mockOnEdit).toHaveBeenCalledWith('1', '更新されたタスク', '2025-01-01')
+    expect(mockOnEdit).toHaveBeenCalledWith('1', '수정된 작업', '2025-01-01')
   })
 
-  it('編集モードで空のタイトルでは保存されない', async () => {
+  it('편집 모드에서 제목이 비면 저장되지 않는다', async () => {
     const user = userEvent.setup()
     render(
       <TaskItem
@@ -186,15 +196,14 @@ describe('TaskItem', () => {
       />
     )
 
-    await user.click(screen.getByRole('button', { name: '編集' }))
-    const titleInput = screen.getByDisplayValue('テストタスク')
-    await user.clear(titleInput)
-    await user.click(screen.getByRole('button', { name: '保存' }))
+    await user.click(screen.getByRole('button', { name: '편집' }))
+    await user.clear(screen.getByDisplayValue('테스트 작업'))
+    await user.click(screen.getByRole('button', { name: '저장' }))
 
     expect(mockOnEdit).not.toHaveBeenCalled()
   })
 
-  it('編集モードでキャンセルすると元に戻る', async () => {
+  it('편집 모드에서 취소하면 원래 값으로 돌아간다', async () => {
     const user = userEvent.setup()
     render(
       <TaskItem
@@ -205,23 +214,20 @@ describe('TaskItem', () => {
       />
     )
 
-    await user.click(screen.getByRole('button', { name: '編集' }))
-    
-    // 値を変更
-    const titleInput = screen.getByDisplayValue('テストタスク')
+    await user.click(screen.getByRole('button', { name: '편집' }))
+
+    const titleInput = screen.getByDisplayValue('테스트 작업')
     await user.clear(titleInput)
-    await user.type(titleInput, '変更したタスク')
+    await user.type(titleInput, '바꾼 작업')
 
-    // キャンセル
-    await user.click(screen.getByRole('button', { name: 'キャンセル' }))
+    await user.click(screen.getByRole('button', { name: '취소' }))
 
-    // 元の表示に戻る
-    expect(screen.getByText('テストタスク')).toBeInTheDocument()
-    expect(screen.queryByDisplayValue('変更したタスク')).not.toBeInTheDocument()
+    expect(screen.getByText('테스트 작업')).toBeInTheDocument()
+    expect(screen.queryByDisplayValue('바꾼 작업')).not.toBeInTheDocument()
     expect(mockOnEdit).not.toHaveBeenCalled()
   })
 
-  it('削除ボタンをクリックして確認ダイアログでOKを選ぶと削除される', async () => {
+  it('삭제 확인 대화상자에서 확인을 누르면 삭제된다', async () => {
     const user = userEvent.setup()
     render(
       <TaskItem
@@ -232,16 +238,15 @@ describe('TaskItem', () => {
       />
     )
 
-    const deleteButton = screen.getByRole('button', { name: '削除' })
-    await user.click(deleteButton)
+    await user.click(screen.getByRole('button', { name: '삭제' }))
 
-    expect(window.confirm).toHaveBeenCalledWith('このタスクを削除してもよろしいですか？')
+    expect(window.confirm).toHaveBeenCalledWith('이 작업을 삭제하시겠습니까?')
     expect(mockOnDelete).toHaveBeenCalledWith('1')
   })
 
-  it('削除ボタンをクリックして確認ダイアログでキャンセルを選ぶと削除されない', async () => {
+  it('삭제 확인 대화상자에서 취소를 누르면 삭제되지 않는다', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(false)
-    
+
     const user = userEvent.setup()
     render(
       <TaskItem
@@ -252,10 +257,9 @@ describe('TaskItem', () => {
       />
     )
 
-    const deleteButton = screen.getByRole('button', { name: '削除' })
-    await user.click(deleteButton)
+    await user.click(screen.getByRole('button', { name: '삭제' }))
 
-    expect(window.confirm).toHaveBeenCalledWith('このタスクを削除してもよろしいですか？')
+    expect(window.confirm).toHaveBeenCalledWith('이 작업을 삭제하시겠습니까?')
     expect(mockOnDelete).not.toHaveBeenCalled()
   })
 })

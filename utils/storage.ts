@@ -14,10 +14,10 @@ export const loadTasks = (): Task[] => {
     // 데이터 검증
     if (!Array.isArray(rawData)) return [];
 
-    // マイグレーション適用
+    // 마이그레이션 적용
     const migratedData = migrateData(rawData);
 
-    // 最終的なデータ検証
+    // 최종 데이터 검증
     const validTasks = migratedData.filter((task): task is Task => {
       return (
         typeof task === "object" &&
@@ -31,7 +31,7 @@ export const loadTasks = (): Task[] => {
       );
     });
 
-    // マイグレーション後のデータを保存
+    // 마이그레이션 후 데이터 저장
     if (validTasks.length !== rawData.length) {
       saveTasks(validTasks);
     }

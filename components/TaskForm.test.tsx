@@ -10,140 +10,123 @@ describe('TaskForm', () => {
     mockOnAddTask.mockClear()
   })
 
-  it('タスク名入力フィールドと期限入力フィールドが表示される', () => {
+  it('작업 이름과 기한 입력 필드가 표시된다', () => {
     render(<TaskForm onAddTask={mockOnAddTask} />)
-    
-    expect(screen.getByLabelText('タスク名')).toBeInTheDocument()
-    expect(screen.getByLabelText('期限（任意）')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'タスクを追加' })).toBeInTheDocument()
+
+    expect(screen.getByLabelText('작업 이름')).toBeInTheDocument()
+    expect(screen.getByLabelText('기한 (선택)')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '작업 추가' })).toBeInTheDocument()
   })
 
-  it('タスク名を入力して送信できる', async () => {
+  it('작업 이름을 입력해 제출할 수 있다', async () => {
     const user = userEvent.setup()
     render(<TaskForm onAddTask={mockOnAddTask} />)
-    
-    const input = screen.getByLabelText('タスク名')
-    const submitButton = screen.getByRole('button', { name: 'タスクを追加' })
-    
-    await user.type(input, '新しいタスク')
+
+    const input = screen.getByLabelText('작업 이름')
+    const submitButton = screen.getByRole('button', { name: '작업 추가' })
+
+    await user.type(input, '새 작업')
     await user.click(submitButton)
-    
-    expect(mockOnAddTask).toHaveBeenCalledWith('新しいタスク', undefined)
+
+    expect(mockOnAddTask).toHaveBeenCalledWith('새 작업', undefined)
     expect(input).toHaveValue('')
   })
 
-  it('タスク名と期限を入力して送信できる', async () => {
+  it('작업 이름과 기한을 입력해 제출할 수 있다', async () => {
     const user = userEvent.setup()
     render(<TaskForm onAddTask={mockOnAddTask} />)
-    
-    const titleInput = screen.getByLabelText('タスク名')
-    const dueDateInput = screen.getByLabelText('期限（任意）')
-    const submitButton = screen.getByRole('button', { name: 'タスクを追加' })
-    
-    await user.type(titleInput, 'タスクと期限')
+
+    const titleInput = screen.getByLabelText('작업 이름')
+    const dueDateInput = screen.getByLabelText('기한 (선택)')
+    const submitButton = screen.getByRole('button', { name: '작업 추가' })
+
+    await user.type(titleInput, '기한 있는 작업')
     await user.type(dueDateInput, '2024-12-31')
     await user.click(submitButton)
-    
-    expect(mockOnAddTask).toHaveBeenCalledWith('タスクと期限', '2024-12-31')
+
+    expect(mockOnAddTask).toHaveBeenCalledWith('기한 있는 작업', '2024-12-31')
     expect(titleInput).toHaveValue('')
     expect(dueDateInput).toHaveValue('')
   })
 
-  it('空のタスク名では送信されない', async () => {
+  it('빈 작업 이름은 제출되지 않는다', async () => {
     const user = userEvent.setup()
     render(<TaskForm onAddTask={mockOnAddTask} />)
-    
-    const submitButton = screen.getByRole('button', { name: 'タスクを追加' })
-    await user.click(submitButton)
-    
+
+    await user.click(screen.getByRole('button', { name: '작업 추가' }))
+
     expect(mockOnAddTask).not.toHaveBeenCalled()
   })
 
-  it('スペースのみのタスク名では送信されない', async () => {
+  it('공백뿐인 작업 이름은 제출되지 않는다', async () => {
     const user = userEvent.setup()
     render(<TaskForm onAddTask={mockOnAddTask} />)
-    
-    const input = screen.getByLabelText('タスク名')
-    const submitButton = screen.getByRole('button', { name: 'タスクを追加' })
-    
-    await user.type(input, '   ')
-    await user.click(submitButton)
-    
+
+    await user.type(screen.getByLabelText('작업 이름'), '   ')
+    await user.click(screen.getByRole('button', { name: '작업 추가' }))
+
     expect(mockOnAddTask).not.toHaveBeenCalled()
   })
 
-  it('EnterキーでIME変換中でない場合は送信される', async () => {
+  it('IME 변환 중이 아니면 Enter 키로 제출된다', async () => {
     const user = userEvent.setup()
     render(<TaskForm onAddTask={mockOnAddTask} />)
-    
-    const input = screen.getByLabelText('タスク名')
-    await user.type(input, 'Enterキーで送信')
-    
-    // EnterキーのイベントをシミュレートしてisComposingがfalseの場合
-    fireEvent.keyDown(input, { 
-      key: 'Enter', 
-      code: 'Enter',
-      nativeEvent: { isComposing: false }
-    })
-    
-    expect(mockOnAddTask).toHaveBeenCalledWith('Enterキーで送信', undefined)
+
+    const input = screen.getByLabelText('작업 이름')
+    await user.type(input, 'Enter로 제출')
+
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter', isComposing: false })
+
+    expect(mockOnAddTask).toHaveBeenCalledWith('Enter로 제출', undefined)
   })
 
-  it('EnterキーでIME変換中の場合は送信されない', () => {
-    // このテストはIMEの挙動を正確にシミュレートするのが困難なため、
-    // コンポーネントの実装を信頼し、基本的な動作確認に留める
+  it('IME 변환 중에는 Enter 키로 제출되지 않는다', async () => {
+    const user = userEvent.setup()
     render(<TaskForm onAddTask={mockOnAddTask} />)
-    
-    const input = screen.getByLabelText('タスク名')
-    
-    // isComposingプロパティはブラウザ環境でのみ正しく動作するため、
-    // ユニットテストでは基本的な要素の存在確認のみ行う
-    expect(input).toBeInTheDocument()
+
+    const input = screen.getByLabelText('작업 이름')
+    await user.type(input, '변환 중인 글자')
+
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter', isComposing: true })
+
     expect(mockOnAddTask).not.toHaveBeenCalled()
   })
 
-  it('Shift+Enterキーでは送信されない', async () => {
+  it('Shift+Enter로는 제출되지 않는다', async () => {
     const user = userEvent.setup()
     render(<TaskForm onAddTask={mockOnAddTask} />)
-    
-    const input = screen.getByLabelText('タスク名')
+
+    const input = screen.getByLabelText('작업 이름')
     await user.type(input, 'Shift+Enter')
-    
-    fireEvent.keyDown(input, { 
-      key: 'Enter', 
-      code: 'Enter',
-      shiftKey: true,
-      nativeEvent: { isComposing: false }
-    })
-    
+
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter', shiftKey: true, isComposing: false })
+
     expect(mockOnAddTask).not.toHaveBeenCalled()
   })
 
-  it('期限のクリアボタンが期限設定時に表示される', async () => {
+  it('기한을 설정하면 지우기 버튼이 나타난다', async () => {
     const user = userEvent.setup()
     render(<TaskForm onAddTask={mockOnAddTask} />)
-    
-    const dueDateInput = screen.getByLabelText('期限（任意）')
-    
-    // 初期状態ではクリアボタンが表示されない
-    expect(screen.queryByRole('button', { name: 'クリア' })).not.toBeInTheDocument()
-    
-    // 期限を設定するとクリアボタンが表示される
+
+    const dueDateInput = screen.getByLabelText('기한 (선택)')
+
+    expect(screen.queryByRole('button', { name: '지우기' })).not.toBeInTheDocument()
+
     await user.type(dueDateInput, '2024-12-31')
-    expect(screen.getByRole('button', { name: 'クリア' })).toBeInTheDocument()
+
+    expect(screen.getByRole('button', { name: '지우기' })).toBeInTheDocument()
   })
 
-  it('期限のクリアボタンをクリックすると期限がクリアされる', async () => {
+  it('지우기 버튼을 누르면 기한이 비워진다', async () => {
     const user = userEvent.setup()
     render(<TaskForm onAddTask={mockOnAddTask} />)
-    
-    const dueDateInput = screen.getByLabelText('期限（任意）')
-    
+
+    const dueDateInput = screen.getByLabelText('기한 (선택)')
+
     await user.type(dueDateInput, '2024-12-31')
-    const clearButton = screen.getByRole('button', { name: 'クリア' })
-    await user.click(clearButton)
-    
+    await user.click(screen.getByRole('button', { name: '지우기' }))
+
     expect(dueDateInput).toHaveValue('')
-    expect(screen.queryByRole('button', { name: 'クリア' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '지우기' })).not.toBeInTheDocument()
   })
 })

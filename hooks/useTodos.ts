@@ -8,21 +8,14 @@ export const useTodos = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showCompleted, setShowCompleted] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [isClient, setIsClient] = useState(false);
-
-  // 클라이언트 사이드인지 여부 판정
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   // 초기 로드
   useEffect(() => {
-    if (isClient) {
-      const loaded = loadTasks();
-      setTasks(loaded);
-      setIsLoading(false);
-    }
-  }, [isClient]);
+    /* eslint-disable react-hooks/set-state-in-effect -- localStorage는 마운트 이후에만 읽을 수 있다 */
+    setTasks(loadTasks());
+    setIsLoading(false);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
 
   // 변경 시 자동 저장
   useEffect(() => {
@@ -89,6 +82,5 @@ export const useTodos = () => {
     editTask,
     deleteTask,
     toggleComplete,
-    isClient,
   };
 };

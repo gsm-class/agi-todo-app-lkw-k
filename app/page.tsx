@@ -15,11 +15,9 @@ export default function Home() {
     editTask,
     deleteTask,
     toggleComplete,
-    isClient,
   } = useTodos();
 
-  // 하이드레이션 오류를 방지하기 위해 마운트된 후에만 로딩 상태를 표시
-  if (isLoading && isClient) {
+  if (isLoading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
         <div className="text-gray-500">로딩 중...</div>

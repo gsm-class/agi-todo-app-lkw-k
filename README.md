@@ -1,5 +1,7 @@
 # TODO App
 
+배포: https://agi-todo-app-lkw-k.vercel.app
+
 작업 관리, 기한 설정, 완료 상태 관리를 지원하는 TODO 애플리케이션. 데이터는 브라우저 로컬 스토리지에 저장된다.
 
 ## 기능

@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import { vi, beforeEach } from 'vitest'
 
-// Mock Next.js router
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
@@ -14,13 +13,27 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '',
 }))
 
-// LocalStorage mock
+const store = new Map<string, string>()
+
 const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-  length: 0,
-  key: vi.fn(),
+  getItem: vi.fn((key: string) => (store.has(key) ? store.get(key)! : null)),
+  setItem: vi.fn((key: string, value: string) => {
+    store.set(key, String(value))
+  }),
+  removeItem: vi.fn((key: string) => {
+    store.delete(key)
+  }),
+  clear: vi.fn(() => {
+    store.clear()
+  }),
+  key: vi.fn((index: number) => Array.from(store.keys())[index] ?? null),
+  get length() {
+    return store.size
+  },
 }
+
 global.localStorage = localStorageMock as any
+
+beforeEach(() => {
+  store.clear()
+})

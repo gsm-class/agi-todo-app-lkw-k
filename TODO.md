@@ -39,7 +39,7 @@ SPECIFICATION.md를 기반으로 간단한 TODO 애플리케이션 구축
   - [x] 태스크명 입력 필드
   - [x] 기한 선택（날짜 피커）
   - [x] 추가 버튼
-  - [x] Enter 키での 추가 대응
+  - [x] Enter 키로 추가 대응
 - [x] TaskList 컴포넌트（`components/TaskList.tsx`）
   - [x] 태스크 목록의 표시
   - [x] 빈 상태의 표시
@@ -50,7 +50,7 @@ SPECIFICATION.md를 기반으로 간단한 TODO 애플리케이션 구축
   - [x] 편집 버튼
   - [x] 삭제 버튼
 - [x] TaskFilter 컴포넌트（`components/TaskFilter.tsx`）
-  - [x] 완료된 상태 표시切り替え 토글
+  - [x] 완료된 상태 표시 전환 토글
 
 ### Phase 4: 상태 관리와 비즈니스 로직
 - [x] useTodos 커스텀 훅（`hooks/useTodos.ts`）
@@ -58,7 +58,7 @@ SPECIFICATION.md를 기반으로 간단한 TODO 애플리케이션 구축
   - [x] 태스크 추가 기능
   - [x] 태스크 편집 기능
   - [x] 태스크 삭제 기능
-  - [x] 완료 상태切り替え 기능
+  - [x] 완료 상태 전환 기능
   - [x] 필터링 기능
 - [x] 로컬 스토리지 유틸리티（`utils/storage.ts`）
   - [x] 데이터의 저장
@@ -135,7 +135,7 @@ SPECIFICATION.md를 기반으로 간단한 TODO 애플리케이션 구축
   - [x] 댓글 추가
 
 ### Phase 10: 문서 만들기
-- [x] EADME.md 업데이트 
+- [x] README.md 업데이트 
   - [x] 프로젝트 개요 
   - [x] 설정 절차 
   - [x] 사용법
